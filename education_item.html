@@ -1,0 +1,20 @@
+<div>
+    <div class="flex justify-between items-baseline mb-1">
+        <h3 class="text-base font-semibold text-primary">{{ item.meta.title
+            | md_inline }}</h3>
+        {% if item.meta.start or item.meta.end %}
+        <p class="text-xs font-mono text-secondary">{{ (item.meta.start or '') |
+            md_inline }}
+            — {{
+            (item.meta.end or '') | md_inline }}</p>
+        {% endif %}
+    </div>
+    {% if item.meta.org %}
+    <p class="text-sm text-secondary font-light">{{ item.meta.org | md_inline
+        }}</p>
+    {% endif %}
+    {% if item.body_html %}
+    <div class="md-content text-sm text-secondary font-light mt-2">{{
+        item.body_html | safe }}</div>
+    {% endif %}
+</div>
