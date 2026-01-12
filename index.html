@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>Anurag Kadu</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script
+      src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500;600;800&display=swap"
+      rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet" />
+    <script id="tailwind-config">
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              // Mostly black & paper-white, with Toshiba red as the only accent.
+              primary: "#111111",
+              secondary: "#4b4b4b",
+              accent: "#e83f3f", // Toshiba red
+              background: "#ffffff", // normal white
+              surface: "#f6f5ef", // subtle elevation over paper
+              border: "#d8d6cf",
+            },
+            fontFamily: {
+              // Headings (heavier, more UI-ish)
+              display: [
+                "IBM Plex Sans",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                '"Segoe UI"',
+                "Roboto",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+              ],
+              // Body
+              body: [
+                "Inter",
+                "system-ui",
+                "-apple-system",
+                "BlinkMacSystemFont",
+                '"Segoe UI"',
+                "Roboto",
+                '"Helvetica Neue"',
+                "Arial",
+                "sans-serif",
+              ],
+              // UI monospace (tags, metadata)
+              mono: ["SF Mono", "Consolas", "Liberation Mono", "Menlo", "monospace"],
+              // Optional serif
+              serif: ["Georgia", "Cambria", "Times New Roman", "Times", "serif"],
+            },
+            borderRadius: { DEFAULT: "0px", lg: "4px", xl: "8px", full: "9999px" },
+          },
+        },
+      };
+    </script>
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        color: #111111;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          "Helvetica Neue", Arial, sans-serif;
+      }
+      .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      .hover-underline-animation {
+        display: inline-block;
+        position: relative;
+      }
+      .hover-underline-animation::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        transform: scaleX(0);
+        height: 1px;
+        bottom: 0;
+        left: 0;
+        background-color: currentColor;
+        transform-origin: bottom right;
+        transition: transform 0.25s ease-out;
+      }
+      .hover-underline-animation:hover::after {
+        transform: scaleX(1);
+        transform-origin: bottom left;
+      }
+
+      /* Markdown content styling (Tailwind preflight resets list styles) */
+      .md-content ul {
+        list-style: disc;
+        padding-left: 1.25rem;
+        margin: 0.75rem 0;
+      }
+      .md-content ol {
+        list-style: decimal;
+        padding-left: 1.25rem;
+        margin: 0.75rem 0;
+      }
+      .md-content li {
+        margin: 0.25rem 0;
+      }
+      .md-content ul ul {
+        list-style: circle;
+        margin-top: 0.25rem;
+      }
+      .md-content p {
+        margin: 0.75rem 0;
+      }
+
+      /* Content links (keep consistent across prose + markdown blocks) */
+      .md-content a,
+      .prose a {
+        color: #e83f3f;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        text-decoration-thickness: 1px;
+        overflow-wrap: anywhere;
+      }
+      .md-content a:hover,
+      .prose a:hover {
+        color: #c92f2f;
+      }
+      .md-content a:focus-visible,
+      .prose a:focus-visible {
+        outline: 2px solid #e83f3f;
+        outline-offset: 2px;
+      }
+
+      /* Custom selection UI: keep native selection transparent and draw an
+         overlay border (implemented with JS below). */
+      ::selection {
+        background: transparent;
+        color: inherit;
+      }
+      ::-moz-selection {
+        background: transparent;
+        color: inherit;
+      }
+
+      /* Markdown highlight (==like this==) */
+      mark.md-highlight {
+        background: #e83f3f;
+        color: #ffffff;
+        padding: 0 0.15em;
+      }
+
+      /* Markdown accent (^^like this^^) */
+      span.md-accent {
+        color: #e83f3f;
+      }
+
+      /* Selection overlay rectangles */
+      #selection-outline-layer {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        pointer-events: none;
+      }
+      .selection-outline-rect {
+        position: absolute;
+        border: 2px solid #e83f3f;
+        box-sizing: border-box;
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body class="bg-background text-primary antialiased">
+    <div id="selection-outline-layer" aria-hidden="true"></div>
+    <header
+    class="fixed top-0 z-50 w-full bg-background/90 backdrop-blur-md border-b border-border">
+    <div
+        class="mx-auto flex h-20 max-w-6xl items-center justify-between px-6 lg:px-12">
+        <div class="flex items-center gap-2 group cursor-pointer">
+            <span class="text-xl font-medium tracking-tight"> </span>
+        </div>
+
+        <nav class="hidden md:flex items-center gap-8">
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#about">About</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#experience">Experience</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#stack">Stack</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#highlights">Credentials</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#projects">Projects</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors"
+                href="#research-papers">Research Papers</a>
+            <a
+                class="text-sm text-secondary hover:text-accent transition-colors flex items-center gap-1"
+                href="https://drive.google.com/file/d/1S4T_SZmq61hBsYLw3gwWWY7Evs4htwhE/view?usp=drive_link"
+                target="_blank">
+                Resume
+                <span class="material-symbols-outlined text-[14px]">arrow_outward</span>
+            </a>
+        </nav>
+
+        
+        <a
+            class="hidden sm:flex items-center gap-2 border border-border bg-background px-5 py-2 text-sm font-medium text-primary hover:bg-accent hover:text-background hover:border-accent transition-all duration-300"
+            href="mailto:kaduanurag94@gmail.com">
+            Get in touch
+            <span class="material-symbols-outlined text-[16px]">mail</span>
+        </a>
+        
+    </div>
+</header>
+
+    <main class="flex flex-col items-center w-full pt-20">
+      <section class="w-full max-w-6xl px-6 py-20 lg:px-12 lg:py-32"
+        id="about">
+        <div
+          class="grid grid-cols-1 gap-16 lg:grid-cols-2 lg:gap-24 items-start lg:items-center">
+          <div class="flex flex-col order-2 lg:order-1 pt-4 lg:pt-0">
+            <div class="space-y-8 lg:space-y-10">
+              <h1
+                class="text-6xl sm:text-7xl lg:text-8xl font-body font-extrabold uppercase tracking-tight leading-[0.9]">
+                
+                Data Engineer<span class="md-accent">/</span> Analyst<br />
+                
+              </h1>
+              <p
+                class="text-lg leading-relaxed text-secondary max-w-md font-light">
+                Passionately curious, often wrong, always learning.
+              </p>
+            </div>
+            <div
+              class="mt-12 flex flex-wrap items-center gap-6 text-sm font-medium">
+              
+              <a
+                class="flex items-center gap-2 text-secondary hover:text-accent transition-colors hover-underline-animation pb-1"
+                href="http://www.linkedin.com/in/anurag-kadu" target="_blank">
+                LinkedIn
+                <span
+                  class="material-symbols-outlined text-[16px]">arrow_outward</span>
+              </a>
+              
+              <a
+                class="flex items-center gap-2 text-secondary hover:text-accent transition-colors hover-underline-animation pb-1"
+                href="https://github.com/Anurag99999" target="_blank">
+                GitHub
+                <span
+                  class="material-symbols-outlined text-[16px]">arrow_outward</span>
+              </a>
+              
+
+              
+              <a
+                class="flex items-center gap-2 text-secondary hover:text-accent transition-colors hover-underline-animation pb-1"
+                href="mailto:kaduanurag94@gmail.com">
+                Email
+                <span
+                  class="material-symbols-outlined text-[16px]">mail</span>
+              </a>
+              
+            </div>
+
+            
+            <!-- Keep About copy inside the left column so it doesn't flow under the image on desktop -->
+            <div class="prose prose-neutral max-w-none mt-14">
+              <p>Hi, I’m Anurag. I design, build, and own end-to-end production data systems from ingestion to insight. I focus on scalable, well-governed data models and pipelines that perform reliably under real-world constraints and drive clear business outcomes.</p>
+            </div>
+            
+          </div>
+
+          <div
+            class="relative order-1 lg:order-2 flex justify-center lg:justify-end">
+            <div class="relative w-full aspect-square max-w-md">
+              <div
+                class="absolute inset-0 bg-gradient-to-tr from-gray-100 to-white rounded-none"></div>
+              <div
+                class="relative h-full w-full overflow-hidden bg-gray-50"
+                data-alt="Profile portrait">
+                
+                <div
+                  class="absolute inset-0 bg-cover bg-center grayscale contrast-125"
+                  style="background-image: url('/assets/profile.jpeg');"></div>
+                
+                <div
+                  class="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full border-t border-border max-w-6xl mx-auto"></div>
+
+      <section class="w-full max-w-6xl px-6 py-24 lg:px-12"
+        id="experience">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          <div class="lg:col-span-4">
+            <h2
+              class="text-3xl font-semibold tracking-tight sticky top-32">Experience
+              <span class="text-accent">/</span></h2>
+          </div>
+          <div class="lg:col-span-8 space-y-16">
+            
+            <div class="group border-b border-border pb-12 last:border-0">
+    <div
+        class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 mb-4">
+        <h3 class="text-2xl font-semibold text-primary">Data Engineer / Data Analyst</h3>
+        <span class="text-sm text-secondary">Jan 2025 — Present</span>
+    </div>
+    <div class="text-lg text-secondary mb-6 font-light">
+        Mindstix Software Labs •
+        Pune, India
+    </div>
+    
+    <div
+        class="md-content text-secondary leading-relaxed mb-6 max-w-2xl"><p><strong>Project 1: Enterprise Data Platform &amp; ETL Modernization</strong></p>
+<ul>
+<li>
+<p>Built robust, scalable ETL pipelines in Azure Data Factory and Synapse, automating multi-brand digital marketing ingestion and reducing manual effort by 80%.</p>
+</li>
+<li>
+<p>Designed and implemented a medallion-architecture lakehouse on Azure for an FMCG client, enabling analytics across sales, inventory, purchase, and web analytics domains with improved lineage and data quality.</p>
+</li>
+<li>
+<p>Delivered 100+ modular, config-driven ADF pipelines to ingest 30M+ historical records (50GB) and ~400K daily incremental records.</p>
+</li>
+<li>
+<p>Built modular, testable data models using dbt and Snowflake, accelerating stakeholder reporting and reducing downstream data issues by 60%.</p>
+</li>
+<li>
+<p>Integrated and optimized Snowflake ingestion pipelines for competitive sales data using ADF + Snowflake stages for efficient storage and transformations.</p>
+</li>
+<li>
+<p>Designed and implemented an Intrinsic Data Quality Framework with 15+ config-driven validation handlers, enabling fail-fast checks, structured logging to ADLS, and automated email alerts.</p>
+</li>
+<li>
+<p>Ensured pipelines were idempotent, extensible, and parallelizable, simplifying backfills, onboarding of new entities, and large-scale reprocessing.</p>
+</li>
+<li>
+<p>Partnered with DevOps to externalize configurations, manage secrets, and enable GitHub-integrated CI/CD for seamless promotion across Dev, Stage, and Prod environments.</p>
+</li>
+</ul>
+<p><strong>Project 2: Business Intelligence &amp; Analytics</strong></p>
+<ul>
+<li>
+<p>Developed dynamic Power BI dashboards for sales and on-hand inventory for a luxury retail client, supporting executive and operational reporting.</p>
+</li>
+<li>
+<p>Identified key drivers behind revenue dips, inventory imbalances, customer drop-offs, and product performance trends, enabling data-driven decision-making.</p>
+</li>
+<li>
+<p>Optimized semantic models and data refresh patterns to ensure accurate, performant, and business-ready insights.</p>
+</li>
+</ul></div>
+    
+    
+    <div class="flex flex-wrap gap-3">
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Azure Data Factory</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Azure Synapse</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">DBT</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Snowflake</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Azure SDK</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Power BI</span>
+        
+    </div>
+    
+</div>
+            
+            <div class="group border-b border-border pb-12 last:border-0">
+    <div
+        class="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2 mb-4">
+        <h3 class="text-2xl font-semibold text-primary">Research Intern</h3>
+        <span class="text-sm text-secondary">Jan 2024 — Jun-2024</span>
+    </div>
+    <div class="text-lg text-secondary mb-6 font-light">
+        IIT Bombay •
+        Mumbai, India
+    </div>
+    
+    <div
+        class="md-content text-secondary leading-relaxed mb-6 max-w-2xl"><ul>
+<li>
+<p>Worked on bridging non-invasive Diffuse Correlation Spectroscopy (DCS) with Brain-Computer Interface (BCI) systems, focusing on
+quantifying cerebral blood flow dynamics using advanced time-series analysis.</p>
+</li>
+<li>
+<p>Integrated camera-based hardware components using Python, enabling synchronized data acquisition and seamless interaction
+between sensing hardware and analytical pipelines.</p>
+</li>
+</ul></div>
+    
+    
+    <div class="flex flex-wrap gap-3">
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Python</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">LangChain</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">PyTorch</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">CNN</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Cuda</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Conv GRU</span>
+        
+        <span
+            class="text-xs uppercase tracking-wider font-mono text-secondary border border-border px-2 py-1 transition-colors group-hover:border-accent group-hover:text-accent">Embedded Software Programming</span>
+        
+    </div>
+    
+</div>
+            
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full border-t border-border max-w-6xl mx-auto"></div>
+
+      <section class="w-full bg-surface" id="stack">
+        <div class="max-w-6xl mx-auto px-6 py-24 lg:px-12">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            <div class="lg:col-span-4">
+              <h2
+                class="text-3xl font-semibold tracking-tight">Technical
+                Stack <span class="text-accent">/</span></h2>
+            </div>
+            <div class="lg:col-span-8">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Cloud &amp; Big Data Platforms</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono"><mark class="md-highlight">Azure Data Factory</mark>, <mark class="md-highlight">Azure Synapse Analytics</mark>, ADLS Gen2, App Service, Virtual Machines, Snowflake, BigQuery</div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Data Engineering &amp; Analytics</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono">Data Warehousing, ETL / ELT Pipelines, Data Integration, Batch &amp; Incremental Processing, Dimensional Modeling, <mark class="md-highlight">SCDs</mark>, <mark class="md-highlight">Medallion Architecture</mark></div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Processing &amp; Transformation</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono">DBT, PySpark, Pandas, Polars, SQL-based and distributed data transformations</div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Programming &amp; Query Languages</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono"><mark class="md-highlight">Python</mark>, <mark class="md-highlight">SQL</mark>, Bash, FastAPI, SOQL</div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Business Intelligence &amp; Visualization</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono"><mark class="md-highlight">Power BI</mark></div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">DevOps &amp; Tooling</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono">Git, GitHub, GitHub Actions (CI/CD), Docker, Linux, Azure Key Vault, VS Code, Postman, Jupyter</div>
+    
+</div>
+                
+                <div>
+    <h3 class="text-lg font-semibold text-primary mb-3">Databases and Storage</h3>
+    
+    
+    
+    <div class="text-sm text-black font-mono">SQL Server, PostgreSQL, NoSQL, MongoDB, ADLS, Parquet, Delta Lake, JSON, CSV</div>
+    
+</div>
+                
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="w-full max-w-6xl px-6 py-24 lg:px-12"
+        id="highlights">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-24">
+          <div class="border-t border-border pt-8">
+            <h2
+              class="mb-8 text-2xl font-normal tracking-tight">Achievements</h2>
+            <ul class="space-y-6">
+              
+              <li class="group">
+    <div class="flex justify-between items-baseline mb-1">
+        <p class="text-base font-medium text-primary">Eureka - Business Model Competition-Zonalist (IIT-B)</p>
+        
+    </div>
+    
+</li>
+              
+              <li class="group">
+    <div class="flex justify-between items-baseline mb-1">
+        <p class="text-base font-medium text-primary">National Entrepreneurship Competition - AIR 4 (IIT-B)</p>
+        
+    </div>
+    
+</li>
+              
+              <li class="group">
+    <div class="flex justify-between items-baseline mb-1">
+        <p class="text-base font-medium text-primary">Eureka - Business Model Competition-Runner Up (GCoEA)</p>
+        
+    </div>
+    
+</li>
+              
+            </ul>
+          </div>
+          <div class="border-t border-border pt-8">
+            <h2
+              class="mb-8 text-2xl font-normal tracking-tight text-secondary">Education</h2>
+            <div class="space-y-8">
+              
+              <div>
+    <div class="flex justify-between items-baseline mb-1">
+        <h3 class="text-base font-semibold text-primary">B.Tech. Information Technology</h3>
+        
+        <p class="text-xs font-mono text-secondary">2020
+            — 2024</p>
+        
+    </div>
+    
+    <p class="text-sm text-secondary font-light">Government College of Engineering, Amravati</p>
+    
+    
+    <div class="md-content text-sm text-secondary font-light mt-2"><ul>
+<li><strong>CGPA</strong>: 8.5/10</li>
+</ul></div>
+    
+</div>
+              
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="w-full border-t border-border max-w-6xl mx-auto"></div>
+
+      <section class="w-full max-w-6xl px-6 py-24 lg:px-12" id="projects">
+        <div class="flex items-end justify-between gap-6 mb-10">
+          <h2 class="text-3xl font-semibold tracking-tight">Projects
+            <span class="text-accent">/</span></h2>
+          <div class="text-xs font-mono text-secondary/70 hidden sm:block">
+            scroll • hover to pause
+          </div>
+        </div>
+
+        <div class="relative">
+          <!-- Subtle fade masks on edges to hint horizontal scroll -->
+          <div
+            class="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-background to-transparent"></div>
+          <div
+            class="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-background to-transparent"></div>
+
+          <div
+            id="projects-carousel"
+            class="flex gap-8 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory"
+            aria-label="Projects carousel">
+            
+            <div class="snap-start shrink-0 w-[85%] sm:w-[460px]">
+              
+
+
+
+<a class="group block" href="https://github.com/Anurag99999/WriteChoice" target="_blank">
+    
+
+        <div
+            class="aspect-[4/3] w-full overflow-hidden bg-gray-100 mb-6 border border-border transition-colors hover:border-accent">
+            <div
+                class="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-105"
+                style="background-image: url('/assets/stroke_detection.jpg');" ></div>
+        </div>
+
+        <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <h3
+                    class="text-xl font-semibold group-hover:text-accent transition-colors">
+                    Automated Stroke Detection
+                </h3>
+            </div>
+            
+            <div
+                class="text-secondary text-sm leading-relaxed mb-4">
+                <p><strong>Stroke detection system using Convolutional Neural Networks</strong></p>
+            </div>
+            
+            
+            <div class="flex flex-wrap gap-2 text-xs text-secondary/70"><span>Python</span> • <span>TensorFlow</span> • <span>Raspberry Pi</span> • <span>CNN</span> • <span>Image Processing</span></div>
+            
+        </div>
+
+        
+    </a>
+    
+            </div>
+            
+            <div class="snap-start shrink-0 w-[85%] sm:w-[460px]">
+              
+
+
+
+<a class="group block" href="https://drive.google.com/file/d/1nVaFGTM-MI4YHjbVW8XrOfJIO1SARqIO/view" target="_blank">
+    
+
+        <div
+            class="aspect-[4/3] w-full overflow-hidden bg-gray-100 mb-6 border border-border transition-colors hover:border-accent">
+            <div
+                class="h-full w-full bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-105"
+                style="background-image: url('/assets/writechoice.jpeg');" ></div>
+        </div>
+
+        <div class="flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+                <h3
+                    class="text-xl font-semibold group-hover:text-accent transition-colors">
+                    WराईटHOICE
+                </h3>
+            </div>
+            
+            <div
+                class="text-secondary text-sm leading-relaxed mb-4">
+                <p><strong>Analyze handwriting samples and predict personality traits based on graphological features</strong></p>
+            </div>
+            
+            
+            <div class="flex flex-wrap gap-2 text-xs text-secondary/70"><span>Python</span> • <span>ML</span> • <span>Image Processing</span></div>
+            
+        </div>
+
+        
+    </a>
+    
+            </div>
+            
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="w-full max-w-6xl px-6 py-24 lg:px-12 mb-20 border-t border-border"
+        id="research-papers">
+        <h2 class="mb-16 text-3xl font-semibold tracking-tight">Research Papers
+          <span class="text-accent">/</span></h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          
+          <a class="group block h-full" href="https://doi.org/10.22214/ijraset.2024.63421" target="_blank">
+    <div
+        class="flex flex-col h-full justify-between p-6 bg-surface border border-transparent hover:border-border hover:bg-background transition-all duration-300">
+        <div>
+            <div class="flex items-center gap-2 mb-4">
+                <span
+                    class="text-xs font-mono text-secondary uppercase tracking-wider group-hover:text-accent transition-colors">Research Paper-1</span>
+            </div>
+            <h3
+                class="text-xl font-semibold text-primary mb-3 group-hover:underline decoration-1 underline-offset-4">A Review of the Future Feasibility and Dynamics of the Indian EV Market; an Economic, Geopolitical, and Engineering Insight</h3>
+            <p class="text-sm text-secondary leading-relaxed">
+                The research paper explores what the future of the Indian EV market might (and should) look like. Developing a predictive model which takes into account various economic, geopolitical, engineering, and socio-economic factors, to visualize the trends and fluctuations in the Indian EV market.
+            </p>
+        </div>
+        <div
+            class="mt-8 pt-4 border-t border-border/50 flex justify-between text-xs text-secondary/70">
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</a>
+          
+          <a class="group block h-full" href="https://www.irjet.net/archives/V10/i2/IRJET-V10I230.pdf" target="_blank">
+    <div
+        class="flex flex-col h-full justify-between p-6 bg-surface border border-transparent hover:border-border hover:bg-background transition-all duration-300">
+        <div>
+            <div class="flex items-center gap-2 mb-4">
+                <span
+                    class="text-xs font-mono text-secondary uppercase tracking-wider group-hover:text-accent transition-colors">Research Paper-2</span>
+            </div>
+            <h3
+                class="text-xl font-semibold text-primary mb-3 group-hover:underline decoration-1 underline-offset-4">Combining Lexicon based and Machine Learning based Methods for Twitter Sentiment Analysis</h3>
+            <p class="text-sm text-secondary leading-relaxed">
+                This study focuses on the techniques of combining lexicon based and machine learning based methods for twitter sentiment analysis. This includes techniques like NLP (Natural Language Processing) which can understand texts and words the same way human beings can. 
+            </p>
+        </div>
+        <div
+            class="mt-8 pt-4 border-t border-border/50 flex justify-between text-xs text-secondary/70">
+            <span></span>
+            <span></span>
+        </div>
+    </div>
+</a>
+          
+        </div>
+      </section>
+    </main>
+
+    <footer class="w-full bg-black text-white py-16">
+    <div
+        class="mx-auto flex max-w-6xl flex-col md:flex-row justify-between gap-12 px-6 lg:px-12">
+        <div class="flex flex-col gap-4">
+            <span class="text-2xl font-display font-medium"></span>
+            <p class="text-sm text-gray-400 max-w-xs leading-relaxed">
+                Designed with purity and purpose. Built for the web of tomorrow.
+            </p>
+            <p class="text-xs text-gray-600 mt-2">© 2026 Anurag Kadu.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-x-12 gap-y-8 text-sm">
+            <div class="flex flex-col gap-3">
+                <span
+                    class="text-gray-500 font-mono text-xs uppercase mb-1">Socials</span>
+                
+                <a class="hover:text-accent transition-colors"
+                    href="http://www.linkedin.com/in/anurag-kadu" target="_blank">LinkedIn</a>
+                
+                <a class="hover:text-accent transition-colors"
+                    href="https://github.com/Anurag99999" target="_blank">GitHub</a>
+                
+            </div>
+            <div class="flex flex-col gap-3">
+                <span
+                    class="text-gray-500 font-mono text-xs uppercase mb-1">Legal</span>
+                <a class="hover:text-accent transition-colors"
+                    href="#">Privacy</a>
+                <a class="hover:text-accent transition-colors"
+                    href="#">Terms</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+    <script>
+      (function () {
+        const layer = document.getElementById("selection-outline-layer");
+        if (!layer) return;
+
+        function clearLayer() {
+          layer.innerHTML = "";
+        }
+
+        function isValidSelection(sel) {
+          return sel && sel.rangeCount > 0 && !sel.isCollapsed;
+        }
+
+        function drawSelectionOutline() {
+          const sel = window.getSelection();
+          if (!isValidSelection(sel)) {
+            clearLayer();
+            return;
+          }
+
+          const range = sel.getRangeAt(0);
+          const rects = Array.from(range.getClientRects());
+
+          // Ignore tiny rects that can appear around line breaks.
+          const filtered = rects.filter((r) => r.width > 1 && r.height > 1);
+          if (filtered.length === 0) {
+            clearLayer();
+            return;
+          }
+
+          clearLayer();
+          for (const r of filtered) {
+            const el = document.createElement("div");
+            el.className = "selection-outline-rect";
+            el.style.left = `${r.left}px`;
+            el.style.top = `${r.top}px`;
+            el.style.width = `${r.width}px`;
+            el.style.height = `${r.height}px`;
+            layer.appendChild(el);
+          }
+        }
+
+        // Update on selection and also on viewport changes so the outline
+        // stays aligned while scrolling.
+        document.addEventListener("selectionchange", drawSelectionOutline);
+        window.addEventListener("scroll", drawSelectionOutline, true);
+        window.addEventListener("resize", drawSelectionOutline);
+        document.addEventListener("mouseup", drawSelectionOutline);
+        document.addEventListener("keyup", drawSelectionOutline);
+
+        // Clear when clicking elsewhere.
+        document.addEventListener("mousedown", function () {
+          // selectionchange will re-draw if user drags to select.
+          clearLayer();
+        });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        const scroller = document.getElementById("projects-carousel");
+        if (!scroller) return;
+
+        const prefersReduced = window.matchMedia(
+          "(prefers-reduced-motion: reduce)"
+        ).matches;
+        if (prefersReduced) return;
+
+        // Duplicate slides once to enable a seamless loop.
+        const originalChildren = Array.from(scroller.children);
+        if (originalChildren.length === 0) return;
+
+        // Ensure layout is ready before we measure and start animating.
+        window.requestAnimationFrame(() => {
+          // Clone only once.
+          if (!scroller.dataset.cloned) {
+            for (const child of originalChildren) {
+              scroller.appendChild(child.cloneNode(true));
+            }
+            scroller.dataset.cloned = "true";
+          }
+
+          // Use scrollWidth (more reliable than summing bounding boxes/gaps).
+          const originalTotal = scroller.scrollWidth / 2;
+
+          let paused = false;
+          const speedPxPerFrame = 0.8; // slightly faster so it’s clearly visible
+
+          // Disable snap while auto-scrolling (manual scroll still works fine).
+          scroller.style.scrollSnapType = "none";
+
+          function tick() {
+            if (!paused) {
+              scroller.scrollLeft += speedPxPerFrame;
+
+              // Loop back seamlessly once we've scrolled past the original set.
+              if (scroller.scrollLeft >= originalTotal) {
+                scroller.scrollLeft -= originalTotal;
+              }
+            }
+            window.requestAnimationFrame(tick);
+          }
+
+          function pause() {
+            paused = true;
+          }
+
+          function resume() {
+            paused = false;
+          }
+
+          scroller.addEventListener("mouseenter", pause);
+          scroller.addEventListener("mouseleave", resume);
+          scroller.addEventListener("focusin", pause);
+          scroller.addEventListener("focusout", resume);
+          scroller.addEventListener("touchstart", pause, { passive: true });
+          scroller.addEventListener("touchend", resume, { passive: true });
+
+          // Pause on wheel/trackpad interaction and resume shortly after.
+          let resumeTimeout = null;
+          scroller.addEventListener(
+            "wheel",
+            function () {
+              paused = true;
+              if (resumeTimeout) window.clearTimeout(resumeTimeout);
+              resumeTimeout = window.setTimeout(() => {
+                paused = false;
+              }, 800);
+            },
+            { passive: true }
+          );
+
+          tick();
+        });
+      })();
+    </script>
+  </body>
+</html>
