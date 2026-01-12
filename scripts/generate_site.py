@@ -41,8 +41,8 @@ def normalize_asset_ref(value: str | None) -> str | None:
 
     Supported:
     - absolute URLs: https://...
-    - site-relative paths: /assets/...
-    - relative-ish: assets/... or ./assets/... -> /assets/...
+    - relative paths: assets/... (preferred for GitHub Pages subdirectories)
+    - site-relative paths: /assets/... -> assets/... (converted to relative)
     """
 
     if not value:
@@ -52,10 +52,9 @@ def normalize_asset_ref(value: str | None) -> str | None:
         return None
     if _is_url(v):
         return v
-    # Normalize to site-root path.
+    # Normalize to relative path (remove leading slash for subdirectory support)
     v = re.sub(r"^\./", "", v)
-    if not v.startswith("/"):
-        v = "/" + v
+    v = re.sub(r"^/", "", v)  # Remove leading slash to make it relative
     return v
 
 
