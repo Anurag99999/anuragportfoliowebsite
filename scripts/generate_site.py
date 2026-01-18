@@ -31,6 +31,11 @@ TEMPLATES_DIR = ROOT / "templates"
 STATIC_DIR = ROOT / "static"
 OUT_DIR = ROOT / "public"
 
+# Base path for GitHub Pages subdirectory deployment
+# Set this to your repository name if deploying to a subdirectory (e.g., "/anuragportfoliowebsite")
+# Leave empty string "" for root deployment or custom domain
+BASE_PATH = "/anuragportfoliowebsite"
+
 
 def _is_url(value: str) -> bool:
     return value.startswith("http://") or value.startswith("https://")
@@ -41,8 +46,10 @@ def normalize_asset_ref(value: str | None) -> str | None:
 
     Supported:
     - absolute URLs: https://...
-    - relative paths: assets/... (preferred for GitHub Pages subdirectories)
-    - site-relative paths: /assets/... -> assets/... (converted to relative)
+    - site-relative paths: /assets/...
+    - relative-ish: assets/... or ./assets/... -> /assets/...
+    
+    Prepends BASE_PATH if set (for GitHub Pages subdirectory deployment).
     """
 
     if not value:
@@ -52,9 +59,13 @@ def normalize_asset_ref(value: str | None) -> str | None:
         return None
     if _is_url(v):
         return v
-    # Normalize to relative path (remove leading slash for subdirectory support)
+    # Normalize to site-root path.
     v = re.sub(r"^\./", "", v)
-    v = re.sub(r"^/", "", v)  # Remove leading slash to make it relative
+    if not v.startswith("/"):
+        v = "/" + v
+    # Prepend base path if configured (for GitHub Pages subdirectory)
+    if BASE_PATH and v.startswith("/"):
+        v = BASE_PATH + v
     return v
 
 
@@ -275,6 +286,7 @@ def main() -> None:
         stack=stack,
         achievements=achievements,
         education=education,
+        base_path=BASE_PATH,
     )
 
     (OUT_DIR / "index.html").write_text(html, encoding="utf-8")
