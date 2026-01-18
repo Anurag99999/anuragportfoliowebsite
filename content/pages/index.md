@@ -10,7 +10,7 @@ hero_headline_lines:
 hero_subtitle: "Passionately curious, often wrong, always learning."
 
 # Can be a URL or a repo-managed asset path.
-profile_image: "/assets/profile.jpeg"
+profile_image: "./assets/profile.jpeg"
 
 socials:
   - label: "LinkedIn"
